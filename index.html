@@ -33,7 +33,7 @@
 
 		<h1>Who's Driving?</h1>
 
-		<div id="app"></div>
+		<div id="app" aria-live="polite"></div>
 
 		<form id="add-driver">
 			<label for="driver-name">Add a name to the list of possible drivers</label>
@@ -99,6 +99,9 @@
 					selected: null
 				},
 				template: function(props) {
+					// Save drivers to local storage
+					localStorage.setItem('drivers', JSON.stringify(props.drivers));
+
 					// Make sure there's at least 1 driver
 					if (props.drivers.length < 1) return '<p><em>To get started, add a couple of drivers using the form below.</em></p>';
 
@@ -140,7 +143,7 @@
 				app.setData({selected: selected});
 			};
 
-			// Remove driver
+			// Remove single driver
 			var removeDriver = function(driver) {
 				// Get a copy of the drivers
 				var data = app.getData();
@@ -150,6 +153,18 @@
 
 				// Update the data and UI
 				app.setData({drivers: data.drivers});
+			};
+
+			// Clear all drivers
+			var clearDrivers = function(event) {
+				// Confirm with user before removing all drivers from list
+				if (!confirm('Are you sure you want to remove all drivers?')) return;
+
+				// Reset all driver data
+				app.setData({
+					drivers: [],
+					selected: null
+				});
 			};
 
 			// Handle click events
@@ -163,6 +178,11 @@
 				var driver = event.target.getAttribute('data-driver');
 				if (driver) {
 					removeDriver(driver);
+				}
+
+				// If click is on #clear-drivers button
+				if (event.target.id === 'clear-drivers') {
+					clearDrivers();
 				}
 			};
 
@@ -190,8 +210,14 @@
 
 			//== Inits & Event Listeners ==//
 
-			// Render app
-			app.render();
+			// Render the initial app UI
+			var saved = localStorage.getItem('drivers');
+			// Check for existing drivers first
+			if (saved) {
+				app.setData({drivers: JSON.parse(saved)});
+			} else {
+				app.render();
+			}
 
 			// Listen for events
 			document.addEventListener('submit', submitHandler, false);
