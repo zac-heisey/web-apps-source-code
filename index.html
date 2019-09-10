@@ -48,6 +48,17 @@
 
 		<script src="component.js"></script>
 		<script>
+			/*!
+			 * Sanitize and encode all HTML in a user-submitted string
+			 * (c) 2018 Chris Ferdinandi, MIT License, https://gomakethings.com
+			 * @param  {String} str  The user-submitted string
+			 * @return {String} str  The sanitized string
+			 */
+			var sanitizeHTML = function (str) {
+				var temp = document.createElement('div');
+				temp.textContent = str;
+				return temp.innerHTML;
+			};
 			// Create app component
 			var app = new Component('#app', {
 				data: {
@@ -58,10 +69,17 @@
 					// Make sure there's at least 1 driver
 					if (props.drivers.length < 1) return '<p><em>To get started, add a couple of drivers using the form below.</em></p>';
 
+					// Create selected driver markup
+					var selected = '';
+					if (props.selected) {
+						selected = '<p><strong>' + sanitizeHTML(props.selected) + ' is the driver.</strong></p>';
+					}
+
 					// Display list of drivers
-					return '<ul>' + props.drivers.map(function(driver) {
-						return '<li>' + driver + '</li>';
-					}).join('') + '</ul>';
+					return '<ul>' + props.drivers.map(function(driver, index) {
+						var name = sanitizeHTML(driver);
+						return '<li>' + name + ' <button data-driver="' + index + '" aria-label="Remove ' + name + '">Remove</button></li>';
+					}).join('') + '</ul>' + selected;
 				}
       });
 
