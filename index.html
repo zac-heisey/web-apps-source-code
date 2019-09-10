@@ -49,7 +49,7 @@
 		<script src="component.js"></script>
 		<script>
 
-			//== Methods ==//
+			//== Helpers ==//
 
 			/*!
 			 * Sanitize and encode all HTML in a user-submitted string
@@ -62,6 +62,35 @@
 				temp.textContent = str;
 				return temp.innerHTML;
 			};
+
+			/**
+			 * Randomly shuffle an array
+			 * https://stackoverflow.com/a/2450976/1293256
+			 * @param  {Array} array The array to shuffle
+			 * @return {String}      The first item in the shuffled array
+			 */
+			var shuffle = function (array) {
+
+				var currentIndex = array.length;
+				var temporaryValue, randomIndex;
+
+				// While there remain elements to shuffle...
+				while (0 !== currentIndex) {
+					// Pick a remaining element...
+					randomIndex = Math.floor(Math.random() * currentIndex);
+					currentIndex -= 1;
+
+					// And swap it with the current element.
+					temporaryValue = array[currentIndex];
+					array[currentIndex] = array[randomIndex];
+					array[randomIndex] = temporaryValue;
+				}
+
+				return array;
+
+			};
+
+			//== Methods ==//
 
 			// Create app component
 			var app = new Component('#app', {
@@ -87,6 +116,57 @@
 				}
       });
 
+			// Pick the driver
+			var pickDriver = function(event) {
+				// Get a copy of the drivers
+				var data = app.getData();
+
+				// Make sure there are at least 2 possible drivers
+				if (data.drivers.length < 2) {
+					alert('Ooops! You need at least 2 drivers. Please add more drivers.');
+					return;
+				}
+
+				// Shuffle list of drivers
+				shuffle(data.drivers);
+
+				// Pick the driver
+				var selected = data.drivers[0];
+				if (data.selected && selected === data.selected) {
+					selected = data.drivers[1];
+				}
+
+				// Update the data and UI
+				app.setData({selected: selected});
+			};
+
+			// Remove driver
+			var removeDriver = function(driver) {
+				// Get a copy of the drivers
+				var data = app.getData();
+
+				// Remove the driver from the list
+				data.drivers.splice(driver, 1);
+
+				// Update the data and UI
+				app.setData({drivers: data.drivers});
+			};
+
+			// Handle click events
+			var clickHandler = function(event) {
+				// If click is on #pick-driver button
+				if (event.target.id === 'pick-driver') {
+					pickDriver();
+				}
+
+				// If click is on [data-driver] button
+				var driver = event.target.getAttribute('data-driver');
+				if (driver) {
+					removeDriver(driver);
+				}
+			};
+
+			// Handle submit events
 			var submitHandler = function(event) {
 				// Make sure submitted form is #add-driver form
 				if (event.target.id !== 'add-driver') return;
@@ -106,15 +186,16 @@
 				// Clear input field and return focus
 				input.value = '';
 				input.focus();
-			}
+			};
 
 			//== Inits & Event Listeners ==//
 
 			// Render app
 			app.render();
 
-			// Listen for form submissions
+			// Listen for events
 			document.addEventListener('submit', submitHandler, false);
+			document.addEventListener('click', clickHandler, false);
 
 		</script>
 	</body>
