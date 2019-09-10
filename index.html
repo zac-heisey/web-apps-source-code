@@ -48,6 +48,9 @@
 
 		<script src="component.js"></script>
 		<script>
+
+			//== Methods ==//
+
 			/*!
 			 * Sanitize and encode all HTML in a user-submitted string
 			 * (c) 2018 Chris Ferdinandi, MIT License, https://gomakethings.com
@@ -59,6 +62,7 @@
 				temp.textContent = str;
 				return temp.innerHTML;
 			};
+
 			// Create app component
 			var app = new Component('#app', {
 				data: {
@@ -83,8 +87,35 @@
 				}
       });
 
+			var submitHandler = function(event) {
+				// Make sure submitted form is #add-driver form
+				if (event.target.id !== 'add-driver') return;
+
+				// Prevent form from submitting to server
+				event.preventDefault();
+
+				// Get the driver name
+				var input = document.querySelector('#driver-name');
+				if (!input || input.value < 1) return;
+
+				// Update the data and UI
+				var data = app.getData();
+				data.drivers.push(input.value);
+				app.setData({drivers: data.drivers});
+
+				// Clear input field and return focus
+				input.value = '';
+				input.focus();
+			}
+
+			//== Inits & Event Listeners ==//
+
 			// Render app
 			app.render();
+
+			// Listen for form submissions
+			document.addEventListener('submit', submitHandler, false);
+
 		</script>
 	</body>
 </html>
