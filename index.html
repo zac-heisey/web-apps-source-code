@@ -48,7 +48,25 @@
 
 		<script src="component.js"></script>
 		<script>
-			// Code goes here...
+			// Create app component
+			var app = new Component('#app', {
+				data: {
+					drivers: [],
+					selected: null
+				},
+				template: function(props) {
+					// Make sure there's at least 1 driver
+					if (props.drivers.length < 1) return '<p><em>To get started, add a couple of drivers using the form below.</em></p>';
+
+					// Display list of drivers
+					return '<ul>' + props.drivers.map(function(driver) {
+						return '<li>' + driver + '</li>';
+					}).join('') + '</ul>';
+				}
+      });
+
+			// Render app
+			app.render();
 		</script>
 	</body>
 </html>
